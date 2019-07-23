@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "name": "tournament-app",
+  "version": "1.0.0",
+  "description": "Tournament application",
+  "main": "server.js",
+  "repository": "https://github.com/mdamian9/tournament-app.git",
+  "author": "mdamian9 <m.damian9@hotmail.com>",
+  "license": "ISC"
+}
