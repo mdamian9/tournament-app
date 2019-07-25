@@ -4,12 +4,12 @@ class UserHomePage extends Component {
     constructor(props) {
         super(props);
         this.state = {
-
+            username: 'User'
         };
     };
 
     render = () => {
-        return(
+        return (
             <div>
                 UserHomePage
             </div>
