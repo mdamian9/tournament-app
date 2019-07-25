@@ -6,12 +6,38 @@ class RoundRobinPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            players: []
+            players: [],
+            newPlayerName: '',
+            ready: false
         };
     };
 
     componentDidMount = () => {
         console.log(this.state);
+    };
+
+    componentDidUpdate = () => {
+        console.log(this.state.newPlayerName);
+    };
+
+    handleChange = event => {
+        // Extract name & value from event target and set to state - newPlayerName
+        const { name, value } = event.target;
+        this.setState({
+            [name]: value
+        });
+    };
+
+    submitPlayerForm = event => {
+        event.preventDefault();
+        console.log(this.state.newPlayerName);
+        this.state.players.push(this.state.newPlayerName);
+        event.target.reset(); 
+    };
+
+    submitRoundForm = event => {
+        event.preventDefault();
+        console.log(this.state.players);
     };
 
     render = () => {
@@ -25,12 +51,21 @@ class RoundRobinPage extends Component {
                 <hr />
                 <Row>
                     <Col>
-                        <Form inline>
-                            <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                                <Label for='player-name' className='mr-sm-2'>Player name:</Label>
-                                <Input type='text' name="playerName" id='player=name' placeholder='Enter player name' />
+                        <Form inline onSubmit={this.submitPlayerForm}>
+                            <FormGroup className='mb-2 mr-sm-2 mb-sm-0'>
+                                <Label for='new-player-name' className='mr-sm-2'>Player name:</Label>
+                                <Input type='text' name="newPlayerName" id='new-player=name'
+                                    placeholder='Enter player name' onChange={this.handleChange} />
                             </FormGroup>
-                            <Button>Submit</Button>
+                            <Button color='primary'>Submit</Button>
+                        </Form>
+                    </Col>
+                    <Col>
+                        <Form inline onSubmit={this.submitRoundForm}>
+                            <FormGroup className='mb-2 mr-sm-2 mb-sm-0'>
+                                <Label for='new-player-name' className='mr-sm-2'>Ready to play?</Label>
+                            </FormGroup>
+                            <Button color='danger'>Submit</Button>
                         </Form>
                     </Col>
                 </Row>
