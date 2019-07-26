@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Container, Row, Col, Form, FormGroup, Label, Input, Button } from 'reactstrap';
+import MatchesTable from './MatchesTable';
 
 class RoundRobinPage extends Component {
 
@@ -17,7 +18,7 @@ class RoundRobinPage extends Component {
     };
 
     componentDidUpdate = () => {
-        console.log(this.state.newPlayerName);
+        // console.log(this.state.newPlayerName);
     };
 
     handleChange = event => {
@@ -30,13 +31,16 @@ class RoundRobinPage extends Component {
 
     submitPlayerForm = event => {
         event.preventDefault();
-        console.log(this.state.newPlayerName);
         this.state.players.push(this.state.newPlayerName);
-        event.target.reset(); 
+        console.log(this.state.players);
+        event.target.reset();
     };
 
     submitRoundForm = event => {
         event.preventDefault();
+        this.setState({
+            ready: true
+        });
         console.log(this.state.players);
     };
 
@@ -67,6 +71,12 @@ class RoundRobinPage extends Component {
                             </FormGroup>
                             <Button color='danger'>Submit</Button>
                         </Form>
+                    </Col>
+                </Row>
+                <hr />
+                <Row>
+                    <Col>
+                        <MatchesTable players={this.state.players} />
                     </Col>
                 </Row>
             </Container>
