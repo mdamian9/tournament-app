@@ -2,13 +2,10 @@ const mongoose = require('mongoose');
 
 const playerSchema = new mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
-    pOne: {
+    name: {
         type: String,
         required: true,
         trim: true
-    },
-    pTwo: {
-        type: String
     }
 });
 
