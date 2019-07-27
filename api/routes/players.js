@@ -28,7 +28,7 @@ router.post('/', (req, res, next) => {
         name: req.body.name
     });
     newPlayer.save().then(player => {
-        res.status(200).json({
+        res.status(201).json({
             message: 'Successfully added new player',
             player: player
         });

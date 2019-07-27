@@ -15,6 +15,7 @@ mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true}).then(() => {
 // set useCreateIndex to true to fix deprecation warnings
 mongoose.set('useCreateIndex', true);
 
+// Initialize API routes
 const playersRoutes = require('./api/routes/players');
 
 // Use morgan to log all requests to console
@@ -23,6 +24,7 @@ app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// Use API routes
 app.use('/players', playersRoutes);
 
 // Serve up static assets (usually on heroku)

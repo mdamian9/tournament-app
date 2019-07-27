@@ -1,5 +1,6 @@
 import React from 'react';
 import { Table } from 'reactstrap';
+import axios from 'axios';
 
 const MatchTableRow = ({ match }) => {
     return (
@@ -21,6 +22,11 @@ const MatchesTable = ({ players }) => {
     for (let i = 0; i < players.length - 1; i++) {
         for (let j = i + 1; j < players.length; j++) {
             matches.push({ pOne: players[i], pTwo: players[j] });
+            axios.post('/matches', { pOne: players[i], pTwo: players[j] }).then(res => {
+                console.log(res);
+            }).catch(err => {
+                console.log(err);
+            });
         };
     };
     return (
