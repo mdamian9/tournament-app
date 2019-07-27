@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Container, Row, Col, Form, FormGroup, Label, Input, Button } from 'reactstrap';
 import MatchesTable from './MatchesTable';
+import axios from 'axios';
 
 class RoundRobinPage extends Component {
 
@@ -33,6 +34,15 @@ class RoundRobinPage extends Component {
         event.preventDefault();
         this.state.players.push(this.state.newPlayerName);
         console.log(this.state.players);
+
+        axios.post('/players', {
+            name: this.state.newPlayerName
+        }).then(res => {
+            console.log(res);
+        }).catch(err => {
+            console.log(err);
+        });
+
         event.target.reset();
     };
 
