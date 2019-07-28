@@ -6,6 +6,10 @@ const playerSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true
+    },
+    points: {
+        type: Number,
+        default: 0
     }
 });
 

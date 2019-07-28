@@ -31,6 +31,7 @@ router.post('/', (req, res, next) => {
     //         players: `${match.pOne} vs. ${match.pTwo}`
     //     });
     // });
+    console.log(req.body);
 });
 
 module.exports = router;

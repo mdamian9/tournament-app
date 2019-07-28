@@ -17,6 +17,7 @@ mongoose.set('useCreateIndex', true);
 
 // Initialize API routes
 const playersRoutes = require('./api/routes/players');
+const matchesRoutes = require('./api/routes/matches');
 
 // Use morgan to log all requests to console
 app.use(morgan('dev'));
@@ -26,6 +27,7 @@ app.use(express.json());
 
 // Use API routes
 app.use('/players', playersRoutes);
+app.use('/matches', matchesRoutes);
 
 // Serve up static assets (usually on heroku)
 if (process.env.NODE_ENV === 'production') {

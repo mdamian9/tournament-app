@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Container, Row, Col, Form, FormGroup, Label, Input, Button } from 'reactstrap';
-import MatchesTable from './MatchesTable';
 import axios from 'axios';
+import TournamentTable from './MatchesTable';
 
 class RoundRobinPage extends Component {
 
@@ -12,10 +12,6 @@ class RoundRobinPage extends Component {
             newPlayerName: '',
             ready: false
         };
-    };
-
-    componentDidMount = () => {
-        console.log(this.state);
     };
 
     componentDidUpdate = () => {
@@ -86,7 +82,7 @@ class RoundRobinPage extends Component {
                 <hr />
                 <Row>
                     <Col>
-                        <MatchesTable players={this.state.players} />
+                        <TournamentTable players={this.state.players} />
                     </Col>
                 </Row>
             </Container>
