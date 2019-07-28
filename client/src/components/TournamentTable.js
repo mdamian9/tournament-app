@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Table } from 'reactstrap';
+import { Table, Form, FormGroup, Label, Button } from 'reactstrap';
 import axios from 'axios';
 
 const MatchTableRow = ({ match }) => {
@@ -22,7 +22,8 @@ class TournamentTable extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            players: []
+            players: [],
+            ready: false
         };
     };
 
@@ -41,7 +42,19 @@ class TournamentTable extends Component {
 
     };
 
+    submitRoundForm = event => {
+        event.preventDefault();
+        this.setState({
+            ready: true
+        });
+        console.log(this.state.ready);
+    };
+
     render = () => {
+        let hideMatches = 'd-none';
+        if (this.state.ready === true) {
+            hideMatches = '';
+        };
         const players = this.state.players;
         let playersStr = '';
         for (let i = 0; i < players.length; i++) {
@@ -52,14 +65,14 @@ class TournamentTable extends Component {
             };
         };
 
-        // let matches = [];
+        let matches = [];
         // let promises = [];
-        // for (let i = 0; i < players.length - 1; i++) {
-        //     for (let j = i + 1; j < players.length; j++) {
-        //         matches.push({ pOne: players[i], pTwo: players[j] });
-        //         promises.push(axios.post('/matches', { pOne: players[i], pTwo: players[j] }));
-        //     };
-        // };
+        for (let i = 0; i < players.length - 1; i++) {
+            for (let j = i + 1; j < players.length; j++) {
+                matches.push({ pOne: players[i], pTwo: players[j] });
+                // promises.push(axios.post('/matches', { pOne: players[i], pTwo: players[j] }));
+            };
+        };
         // Promise.all(promises).then(values => {
         //     values.forEach(value => {
         //         console.log(value);
@@ -78,16 +91,26 @@ class TournamentTable extends Component {
                                 {playersStr}
                             </td>
                         </tr>
-                        <tr>
-                            <th>
+                        <tr className={hideMatches}>
+                            <th className='align-middle'>
                                 Matches:
                             </th>
+                            <td>
+                                <Table bordered>
+                                    <tbody>
+                                        <MatchesTableRows matches={matches} />
+                                    </tbody>
+                                </Table>
+                            </td>
                         </tr>
                     </thead>
-                    <tbody>
-                        {/* <MatchesTableRows matches={matches} /> */}
-                    </tbody>
                 </Table>
+                <Form inline onSubmit={this.submitRoundForm}>
+                    <FormGroup className='mb-2 mr-sm-2 mb-sm-0'>
+                        <Label for='new-player-name' className='mr-sm-2'>Ready to play?</Label>
+                    </FormGroup>
+                    <Button color='danger'>Start</Button>
+                </Form>
             </div>
         );
     };

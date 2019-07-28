@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Container, Row, Col, Form, FormGroup, Label, Input, Button } from 'reactstrap';
 import axios from 'axios';
-import TournamentTable from './MatchesTable';
+import TournamentTable from './TournamentTable';
 
 class RoundRobinPage extends Component {
 
@@ -10,7 +10,6 @@ class RoundRobinPage extends Component {
         this.state = {
             players: [],
             newPlayerName: '',
-            ready: false
         };
     };
 
@@ -42,14 +41,6 @@ class RoundRobinPage extends Component {
         event.target.reset();
     };
 
-    submitRoundForm = event => {
-        event.preventDefault();
-        this.setState({
-            ready: true
-        });
-        console.log(this.state.players);
-    };
-
     render = () => {
         return (
             <Container>
@@ -68,14 +59,6 @@ class RoundRobinPage extends Component {
                                     placeholder='Enter player name' onChange={this.handleChange} />
                             </FormGroup>
                             <Button color='primary'>Submit</Button>
-                        </Form>
-                    </Col>
-                    <Col>
-                        <Form inline onSubmit={this.submitRoundForm}>
-                            <FormGroup className='mb-2 mr-sm-2 mb-sm-0'>
-                                <Label for='new-player-name' className='mr-sm-2'>Ready to play?</Label>
-                            </FormGroup>
-                            <Button color='danger'>Submit</Button>
                         </Form>
                     </Col>
                 </Row>
