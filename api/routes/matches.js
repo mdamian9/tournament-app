@@ -19,19 +19,31 @@ router.get('/', (req, res, next) => {
 });
 
 router.post('/', (req, res, next) => {
-    // const newMatch = new Match({
-    //     _id: new mongoose.Types.ObjectId(),
-    //     pOne: req.body.pOne,
-    //     pTwo: req.body.pTwo
-    // });
-    // newMatch.save().then(match => {
-    //     res.status(201).json({
-    //         message: 'Successfully created new match',
-    //         match: match,
-    //         players: `${match.pOne} vs. ${match.pTwo}`
+    // Match.find({ pOne: req.body.pOne, pTwo: req.body.pTwo }).then(result => {
+    //     console.log(result.length);
+    //     if (result.length < 1) {
+    //         console.log('Should send 409');
+    //         return res.status(409).json({
+    //             message: 'Match already exists'
+    //         });
+    //     };
+        const newMatch = new Match({
+            _id: new mongoose.Types.ObjectId(),
+            pOne: req.body.pOne,
+            pTwo: req.body.pTwo
+        });
+        newMatch.save().then(match => {
+            res.status(201).json({
+                message: 'Successfully created new match',
+                match: match,
+                players: `${match.pOne} vs. ${match.pTwo}`
+            });
+        });
+    // }).catch(err => {
+    //     res.status(500).json({
+    //         err: err
     //     });
     // });
-    console.log(req.body);
 });
 
 module.exports = router;

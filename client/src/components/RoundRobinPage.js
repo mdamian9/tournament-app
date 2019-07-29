@@ -8,23 +8,66 @@ class RoundRobinPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            newPlayerName: '',
             players: [],
-            newPlayerName: ''
+            matches: []
         };
     };
 
     componentDidMount = () => {
-        axios.get('/players').then(res => {
+        // axios.get('/players').then(res => {
+        //     this.setState({
+        //         players: res.data.players
+        //     });
+        // }).catch(err => {
+        //     console.log(err);
+        // });
+
+        // axios.get('/matches').then(res => {
+        //     console.log(res);
+        // }).catch(err => {
+        //     console.log(err);
+        // })
+
+        let promises = [axios.get('/players'), axios.get('/matches')];
+        Promise.all(promises).then(values => {
+            console.log(values);
             this.setState({
-                players: res.data.players
+                players: values[0].data.players,
+                matches: values[1].data.matches
             });
-            console.log('RoundRobinPage mounted');
-            console.log(this.state);
         }).catch(err => {
             console.log(err);
         });
 
     };
+
+    componentDidUpdate = () => {
+        console.log('updated rrp');
+    };
+
+    // componentDidMount = () => {
+    //     console.log('TT');
+    //     console.log(this.state);
+    //     const players = this.props.players;
+    //     let matches = [];
+    //     let promises = [];
+    //     for (let i = 0; i < players.length - 1; i++) {
+    //         for (let j = i + 1; j < players.length; j++) {
+    //             matches.push({ pOne: players[i].name, pTwo: players[j].name });
+    //             // promises.push(axios.post('/matches', { pOne: players[i].name, pTwo: players[j].name })
+    //             //     // .catch(err => {
+    //             //     //     console.log(err);
+    //             //     // })
+    //             // );
+    //         };
+    //     };
+    //     console.log(matches);
+    //     // this.setState({
+    //     //     matches: matches
+    //     // });
+    // };
+
 
     handleChange = event => {
         // Extract name & value from event target and set to state - newPlayerName
@@ -36,8 +79,8 @@ class RoundRobinPage extends Component {
 
     submitPlayerForm = event => {
         // event.preventDefault();
-        this.state.players.push(this.state.newPlayerName);
-        console.log(this.state.players);
+        // this.state.players.push(this.state.newPlayerName);
+        // console.log(this.state.players);
 
         axios.post('/players', {
             name: this.state.newPlayerName
@@ -50,7 +93,15 @@ class RoundRobinPage extends Component {
         event.target.reset();
     };
 
+    submitRoundForm = event => {
+
+    };
+
     render = () => {
+
+        console.log('rendered rrp');
+        console.log(this.state);
+
         const players = this.state.players;
 
         const renderPlayers = players.map(player => {
@@ -101,7 +152,9 @@ class RoundRobinPage extends Component {
                 </Row>
                 <Row>
                     <Col>
-                        <TournamentTable players={this.state.players} />
+                        <TournamentTable players={this.state.players}
+                            submitRoundForm={this.submitRoundForm} ready={this.state.ready}
+                            matches={this.state.matches} />
                     </Col>
                 </Row>
             </Container>
