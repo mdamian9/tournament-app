@@ -2,19 +2,22 @@ import React, { Component } from 'react';
 import { Table, Form, FormGroup, Label, Button } from 'reactstrap';
 import axios from 'axios';
 
-const MatchTableRow = ({ match }) => {
+const MatchTableRow = ({ match, num }) => {
     return (
         <tr>
-            <th scope='row'><b>Match:</b></th>
+            <th scope='row'><b>Match #{num}:</b></th>
             <td>{match.pOne} vs. {match.pTwo}</td>
         </tr>
     );
 };
 
 const MatchesTableRows = ({ matches }) => {
-    return matches.map(match => {
-        return <MatchTableRow match={match} />
-    });
+    let renderMatches = [];
+    for (let i = 0; i < matches.length; i++) {
+        // change key to MongoDB id * ?
+        renderMatches.push(<MatchTableRow key={i} num={i + 1} match={matches[i]} />)
+    };
+    return renderMatches;
 };
 
 class TournamentTable extends Component {
@@ -22,24 +25,9 @@ class TournamentTable extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            players: [],
+            matches: [],
             ready: false
         };
-    };
-
-    componentDidMount = () => {
-        axios.get('/players').then(res => {
-            console.log(res);
-            this.setState({
-                players: res.data.players.map(player => {
-                    return player.name
-                })
-            });
-            console.log(this.state);
-        }).catch(err => {
-            console.log(err);
-        });
-
     };
 
     submitRoundForm = event => {
@@ -47,29 +35,24 @@ class TournamentTable extends Component {
         this.setState({
             ready: true
         });
-        console.log(this.state.ready);
+    };
+
+    componentDidUpdate = () => {
+        console.log('TournamentTable did update');
+        console.log(this.state);
     };
 
     render = () => {
-        let hideMatches = 'd-none';
+        let hideEl = 'd-none';
         if (this.state.ready === true) {
-            hideMatches = '';
+            hideEl = '';
         };
-        const players = this.state.players;
-        let playersStr = '';
-        for (let i = 0; i < players.length; i++) {
-            if (i === players.length - 1) {
-                playersStr = `${playersStr}${players[i]}`
-            } else {
-                playersStr = `${playersStr}${players[i]}, `;
-            };
-        };
-
+        const players = this.props.players;
         let matches = [];
         // let promises = [];
         for (let i = 0; i < players.length - 1; i++) {
             for (let j = i + 1; j < players.length; j++) {
-                matches.push({ pOne: players[i], pTwo: players[j] });
+                matches.push({ pOne: players[i].name, pTwo: players[j].name });
                 // promises.push(axios.post('/matches', { pOne: players[i], pTwo: players[j] }));
             };
         };
@@ -83,15 +66,7 @@ class TournamentTable extends Component {
             <div>
                 <Table bordered>
                     <thead>
-                        <tr>
-                            <th>
-                                Players:
-                            </th>
-                            <td>
-                                {playersStr}
-                            </td>
-                        </tr>
-                        <tr className={hideMatches}>
+                        <tr className={hideEl}>
                             <th className='align-middle'>
                                 Matches:
                             </th>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Container, Row, Col, Form, FormGroup, Label, Input, Button } from 'reactstrap';
+import { Container, Row, Col, Table, Form, FormGroup, Label, Input, Button } from 'reactstrap';
 import axios from 'axios';
 import TournamentTable from './TournamentTable';
 
@@ -9,12 +9,21 @@ class RoundRobinPage extends Component {
         super(props);
         this.state = {
             players: [],
-            newPlayerName: '',
+            newPlayerName: ''
         };
     };
 
-    componentDidUpdate = () => {
-        // console.log(this.state.newPlayerName);
+    componentDidMount = () => {
+        axios.get('/players').then(res => {
+            this.setState({
+                players: res.data.players
+            });
+            console.log('RoundRobinPage mounted');
+            console.log(this.state);
+        }).catch(err => {
+            console.log(err);
+        });
+
     };
 
     handleChange = event => {
@@ -26,7 +35,7 @@ class RoundRobinPage extends Component {
     };
 
     submitPlayerForm = event => {
-        event.preventDefault();
+        // event.preventDefault();
         this.state.players.push(this.state.newPlayerName);
         console.log(this.state.players);
 
@@ -42,6 +51,15 @@ class RoundRobinPage extends Component {
     };
 
     render = () => {
+        const players = this.state.players;
+
+        const renderPlayers = players.map(player => {
+            return <th key={player._id} className='text-center'>{player.name}</th>
+        });
+        const renderPoints = players.map(player => {
+            return <td key={player._id} className='text-center'>{player.points}</td>
+        });
+
         return (
             <Container>
                 <Row>
@@ -63,6 +81,24 @@ class RoundRobinPage extends Component {
                     </Col>
                 </Row>
                 <hr />
+                <Row>
+                    <Col>
+                        <Table bordered>
+                            <thead>
+                                <tr>
+                                    <th>Players:</th>
+                                    {renderPlayers}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row">Points:</th>
+                                    {renderPoints}
+                                </tr>
+                            </tbody>
+                        </Table>
+                    </Col>
+                </Row>
                 <Row>
                     <Col>
                         <TournamentTable players={this.state.players} />

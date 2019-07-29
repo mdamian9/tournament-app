@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const Player = require('../models/player');
 
 router.get('/', (req, res, next) => {
-    Player.find().select('_id name').then(players => {
+    Player.find().select('_id name points').then(players => {
         if (!players) {
             return res.status(404).json({
                 message: 'No players found'
