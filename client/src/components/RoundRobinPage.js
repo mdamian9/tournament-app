@@ -10,6 +10,7 @@ class RoundRobinPage extends Component {
         this.state = {
             newPlayerName: '',
             players: [],
+            points: [],
             matches: []
         };
     };
@@ -19,6 +20,9 @@ class RoundRobinPage extends Component {
             console.log(values);
             this.setState({
                 players: values[0].data.players,
+                points: values[0].data.players.map(player => {
+                    return player.points;
+                }),
                 matches: values[1].data.matches
             });
             console.log(this.state);
@@ -50,11 +54,9 @@ class RoundRobinPage extends Component {
     submitRoundForm = event => {
         event.preventDefault();
         const players = this.state.players;
-        let matches = [];
         let promises = [];
         for (let i = 0; i < players.length - 1; i++) {
             for (let j = i + 1; j < players.length; j++) {
-                matches.push({ pOne: players[i].name, pTwo: players[j].name });
                 promises.push(axios.post('/matches', { pOne: players[i].name, pTwo: players[j].name }));
             };
         };
@@ -70,8 +72,27 @@ class RoundRobinPage extends Component {
     };
 
     endMatch = event => {
-        console.log('match ended, point incremented');
-        console.log(`Winner: ${event.target.value}`);
+        const winner = event.target.value;
+
+        const winnerP = this.state.players.filter(player => {
+            return player.name === winner;
+        })[0];
+        console.log(winnerP);
+        console.log(this.state.players);
+        console.log(this.state.players.indexOf(winnerP));
+
+        // We have winner name / object / and index. We can now find the index of points and set new state
+
+
+        const winnerPoints = this.state.players.filter(player => {
+            return player.name === winner;
+        })[0].points;
+        axios.patch(`/players/${winner}`, { points: winnerPoints + 1 }).then(res => {
+            console.log(res);
+        }).catch(err => {
+            console.log(err);
+        });
+        // New points won't re-render automatically here but 
     };
 
     render = () => {
@@ -86,8 +107,9 @@ class RoundRobinPage extends Component {
         const renderPlayers = players.map(player => {
             return <th key={player._id} className='text-center'>{player.name}</th>
         });
-        const renderPoints = players.map(player => {
-            return <td key={player._id} className='text-center'>{player.points}</td>
+        const renderPoints = this.state.points.map(playerPoints => {
+            console.log(this.state.points.indexOf(playerPoints));
+            return <td key={this.state.points.indexOf(playerPoints) + 1} className='text-center'>{playerPoints}</td>
         });
 
         return (
@@ -155,3 +177,6 @@ class RoundRobinPage extends Component {
 };
 
 export default RoundRobinPage;
+
+// Figure out key thing with renderPoints
+// Finish updating points with state / 

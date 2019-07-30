@@ -15,12 +15,9 @@ const MatchTableRow = ({ match, num, endMatch }) => {
 };
 
 const MatchesTableRows = ({ matches, endMatch }) => {
-    let renderMatches = [];
-    for (let i = 0; i < matches.length; i++) {
-        // change key to MongoDB id *
-        renderMatches.push(<MatchTableRow key={i} num={i + 1} match={matches[i]} endMatch={endMatch} />)
-    };
-    return renderMatches;
+    return matches.map(match => {
+        return <MatchTableRow key={match._id} num={matches.indexOf(match) + 1} match={match} endMatch={endMatch} />
+    })
 };
 
 const TournamentTable = props => {
