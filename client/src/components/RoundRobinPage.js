@@ -15,59 +15,18 @@ class RoundRobinPage extends Component {
     };
 
     componentDidMount = () => {
-        // axios.get('/players').then(res => {
-        //     this.setState({
-        //         players: res.data.players
-        //     });
-        // }).catch(err => {
-        //     console.log(err);
-        // });
-
-        // axios.get('/matches').then(res => {
-        //     console.log(res);
-        // }).catch(err => {
-        //     console.log(err);
-        // })
-
-        let promises = [axios.get('/players'), axios.get('/matches')];
-        Promise.all(promises).then(values => {
+        Promise.all([axios.get('/players'), axios.get('/matches')]).then(values => {
             console.log(values);
             this.setState({
                 players: values[0].data.players,
                 matches: values[1].data.matches
             });
+            console.log(this.state);
         }).catch(err => {
             console.log(err);
         });
 
     };
-
-    componentDidUpdate = () => {
-        console.log('updated rrp');
-    };
-
-    // componentDidMount = () => {
-    //     console.log('TT');
-    //     console.log(this.state);
-    //     const players = this.props.players;
-    //     let matches = [];
-    //     let promises = [];
-    //     for (let i = 0; i < players.length - 1; i++) {
-    //         for (let j = i + 1; j < players.length; j++) {
-    //             matches.push({ pOne: players[i].name, pTwo: players[j].name });
-    //             // promises.push(axios.post('/matches', { pOne: players[i].name, pTwo: players[j].name })
-    //             //     // .catch(err => {
-    //             //     //     console.log(err);
-    //             //     // })
-    //             // );
-    //         };
-    //     };
-    //     console.log(matches);
-    //     // this.setState({
-    //     //     matches: matches
-    //     // });
-    // };
-
 
     handleChange = event => {
         // Extract name & value from event target and set to state - newPlayerName
@@ -78,10 +37,6 @@ class RoundRobinPage extends Component {
     };
 
     submitPlayerForm = event => {
-        // event.preventDefault();
-        // this.state.players.push(this.state.newPlayerName);
-        // console.log(this.state.players);
-
         axios.post('/players', {
             name: this.state.newPlayerName
         }).then(res => {
@@ -89,18 +44,42 @@ class RoundRobinPage extends Component {
         }).catch(err => {
             console.log(err);
         });
-
         event.target.reset();
     };
 
     submitRoundForm = event => {
+        event.preventDefault();
+        const players = this.state.players;
+        let matches = [];
+        let promises = [];
+        for (let i = 0; i < players.length - 1; i++) {
+            for (let j = i + 1; j < players.length; j++) {
+                matches.push({ pOne: players[i].name, pTwo: players[j].name });
+                promises.push(axios.post('/matches', { pOne: players[i].name, pTwo: players[j].name }));
+            };
+        };
+        Promise.all(promises).then(values => {
+            this.setState({
+                matches: values.map(value => {
+                    return value.data.match
+                })
+            });
+        }).catch(err => {
+            console.log(err);
+        });
+    };
 
+    endMatch = event => {
+        console.log('match ended, point incremented');
+        console.log(`Winner: ${event.target.value}`);
     };
 
     render = () => {
 
-        console.log('rendered rrp');
-        console.log(this.state);
+        let hideEl = '';
+        if (this.state.matches.length > 0) {
+            hideEl = 'd-none';
+        };
 
         const players = this.state.players;
 
@@ -118,8 +97,8 @@ class RoundRobinPage extends Component {
                         RoundRobinPage
                     </Col>
                 </Row>
-                <hr />
-                <Row>
+                <br />
+                <Row className={hideEl}>
                     <Col>
                         <Form inline onSubmit={this.submitPlayerForm}>
                             <FormGroup className='mb-2 mr-sm-2 mb-sm-0'>
@@ -152,9 +131,21 @@ class RoundRobinPage extends Component {
                 </Row>
                 <Row>
                     <Col>
-                        <TournamentTable players={this.state.players}
-                            submitRoundForm={this.submitRoundForm} ready={this.state.ready}
-                            matches={this.state.matches} />
+                        <TournamentTable
+                            submitRoundForm={this.submitRoundForm}
+                            endMatch={this.endMatch}
+                            matches={this.state.matches}
+                        />
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        <Form className={hideEl} inline onSubmit={this.submitRoundForm}>
+                            <FormGroup className='mb-2 mr-sm-2 mb-sm-0'>
+                                <Label for='new-player-name' className='mr-sm-2'>Ready to start round?</Label>
+                            </FormGroup>
+                            <Button color='danger'>Start</Button>
+                        </Form>
                     </Col>
                 </Row>
             </Container>
