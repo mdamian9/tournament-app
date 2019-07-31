@@ -11,7 +11,8 @@ class RoundRobinPage extends Component {
             newPlayerName: '',
             players: [],
             points: [],
-            matches: []
+            matches: [],
+            nextRoundPlayers: [],
         };
     };
 
@@ -51,6 +52,18 @@ class RoundRobinPage extends Component {
         event.target.reset();
     };
 
+    submitNewPlayerForm = event => {
+        event.preventDefault();
+        let nextRoundPlayers = this.state.nextRoundPlayers;
+        nextRoundPlayers.push(this.state.newPlayerName);
+        this.setState({
+            nextRoundPlayers: this.state.nextRoundPlayers
+        });
+        console.log(this.state.nextRoundPlayers);
+
+        event.target.reset();
+    };
+
     submitRoundForm = event => {
         event.preventDefault();
         const players = this.state.players;
@@ -69,6 +82,11 @@ class RoundRobinPage extends Component {
         }).catch(err => {
             console.log(err);
         });
+    };
+
+    submitNextRound = event => {
+        event.preventDefault();
+        console.log('submit next round');
     };
 
     endMatch = (event) => {
@@ -93,23 +111,30 @@ class RoundRobinPage extends Component {
         Promise.all([
             axios.patch(`/players/${winner}`, { points: winnerPoints + 1 }),
             axios.delete(`/matches/${matchId}`),
+            axios.get('/players'),
             axios.get('/matches')
         ]).then(values => {
             console.log(values);
             this.setState({
-                matches: values[2].data.matches
+                points: values[2].data.players.map(player => {
+                    return player.points;
+                }),
+                matches: values[3].data.matches
             });
         }).catch(err => {
             console.log(err);
-        })
-
-        // New points won't re-render automatically here but 
+        });
+        
     };
 
     render = () => {
 
-        let hideEl = '';
+        let hideEl = '', hideNextRound = 'd-none';
         if (this.state.matches.length > 0) {
+            hideEl = 'd-none';
+        };
+        if (this.state.players.length > 0 && this.state.matches.length < 1) {
+            hideNextRound = '';
             hideEl = 'd-none';
         };
 
@@ -163,6 +188,29 @@ class RoundRobinPage extends Component {
                         </Table>
                     </Col>
                 </Row>
+                <Row className={hideNextRound}>
+                    <Col>
+                        <Form inline onSubmit={this.submitNewPlayerForm}>
+                            <FormGroup className='mb-2 mr-sm-2 mb-sm-0'>
+                                <Label for='new-player-name' className='mr-sm-2'>Player name:</Label>
+                                <Input type='text' name="newPlayerName" id='new-player=name'
+                                    placeholder='Enter player name' onChange={this.handleChange} />
+                            </FormGroup>
+                            <Button color='primary'>Submit</Button>
+                        </Form>
+                    </Col>
+                </Row>
+                <br className={hideNextRound} />
+                <Row className={hideNextRound}>
+                    <Col>
+                        <Form inline onSubmit={this.submitNextRound}>
+                            <FormGroup className='mb-2 mr-sm-2 mb-sm-0'>
+                                <Label for='new-player-name' className='mr-sm-2'>Ready to start next round?</Label>
+                            </FormGroup>
+                            <Button color='danger'>Start</Button>
+                        </Form>
+                    </Col>
+                </Row>
                 <Row>
                     <Col>
                         <TournamentTable
@@ -172,9 +220,9 @@ class RoundRobinPage extends Component {
                         />
                     </Col>
                 </Row>
-                <Row>
+                <Row className={hideEl}>
                     <Col>
-                        <Form className={hideEl} inline onSubmit={this.submitRoundForm}>
+                        <Form inline onSubmit={this.submitRoundForm}>
                             <FormGroup className='mb-2 mr-sm-2 mb-sm-0'>
                                 <Label for='new-player-name' className='mr-sm-2'>Ready to start round?</Label>
                             </FormGroup>
