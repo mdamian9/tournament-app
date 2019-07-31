@@ -55,6 +55,12 @@ class RoundRobinPage extends Component {
     submitNewPlayerForm = event => {
         event.preventDefault();
         let nextRoundPlayers = this.state.nextRoundPlayers;
+
+        // const test = this.state.players.filter(player => {
+        //     return player.name === this.state.newPlayerName
+        // })[0];
+        // console.log(test);
+
         nextRoundPlayers.push(this.state.newPlayerName);
         this.setState({
             nextRoundPlayers: this.state.nextRoundPlayers
@@ -86,7 +92,26 @@ class RoundRobinPage extends Component {
 
     submitNextRound = event => {
         event.preventDefault();
-        console.log('submit next round');
+        console.log(this.state.players);
+        console.log(this.state.nextRoundPlayers);
+
+        const losers = this.state.players;
+        const nextRoundPlayers = this.state.nextRoundPlayers;
+
+        // Loop to return array of losers which will be deleted from db
+        for (let i = 0; i < losers.length; i++) {
+            for (let j = 0; j < nextRoundPlayers.length; j++) {
+                if (losers[i].name === nextRoundPlayers[j]) {
+                    console.log(losers[i]);
+                    losers.splice(i, 1);
+                };
+            };
+        };
+
+
+
+        console.log(losers);
+
     };
 
     endMatch = (event) => {
@@ -124,7 +149,7 @@ class RoundRobinPage extends Component {
         }).catch(err => {
             console.log(err);
         });
-        
+
     };
 
     render = () => {
