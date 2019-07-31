@@ -71,27 +71,38 @@ class RoundRobinPage extends Component {
         });
     };
 
-    endMatch = event => {
+    endMatch = (event) => {
+        // event.preventDefault();
+        console.log(`Winner: ${event.target.value}`);
+        // Winner of match
         const winner = event.target.value;
-
-        const winnerP = this.state.players.filter(player => {
-            return player.name === winner;
-        })[0];
-        console.log(winnerP);
-        console.log(this.state.players);
-        console.log(this.state.players.indexOf(winnerP));
-
-        // We have winner name / object / and index. We can now find the index of points and set new state
-
-
+        // MongoDB id of match
+        const matchId = event.target.getAttribute('match_id');
+        // Current points of winner before adding point
         const winnerPoints = this.state.players.filter(player => {
             return player.name === winner;
         })[0].points;
-        axios.patch(`/players/${winner}`, { points: winnerPoints + 1 }).then(res => {
-            console.log(res);
+
+        // axios.patch(`/players/${winner}`, { points: winnerPoints + 1 }).then(res => {
+        //     console.log(res);
+        // }).catch(err => {
+        //     console.log(err);
+        // });
+
+
+        Promise.all([
+            axios.patch(`/players/${winner}`, { points: winnerPoints + 1 }),
+            axios.delete(`/matches/${matchId}`),
+            axios.get('/matches')
+        ]).then(values => {
+            console.log(values);
+            this.setState({
+                matches: values[2].data.matches
+            });
         }).catch(err => {
             console.log(err);
-        });
+        })
+
         // New points won't re-render automatically here but 
     };
 
@@ -108,7 +119,8 @@ class RoundRobinPage extends Component {
             return <th key={player._id} className='text-center'>{player.name}</th>
         });
         const renderPoints = this.state.points.map(playerPoints => {
-            console.log(this.state.points.indexOf(playerPoints));
+            // encountering with same key problem
+            // console.log(this.state.points.indexOf(playerPoints));
             return <td key={this.state.points.indexOf(playerPoints) + 1} className='text-center'>{playerPoints}</td>
         });
 

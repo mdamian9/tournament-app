@@ -41,6 +41,7 @@ router.post('/', (req, res, next) => {
 
 router.patch('/:name', (req, res, next) => {
     Player.updateOne({ name: req.params.name }, { $set: { points: req.body.points } }).then(result => {
+        console.log(result);
         res.status(200).json({
             message: 'Successfully updated user points',
             result: result

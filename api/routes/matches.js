@@ -27,23 +27,37 @@ router.post('/', (req, res, next) => {
     //             message: 'Match already exists'
     //         });
     //     };
-        const newMatch = new Match({
-            _id: new mongoose.Types.ObjectId(),
-            pOne: req.body.pOne,
-            pTwo: req.body.pTwo
+    const newMatch = new Match({
+        _id: new mongoose.Types.ObjectId(),
+        pOne: req.body.pOne,
+        pTwo: req.body.pTwo
+    });
+    newMatch.save().then(match => {
+        res.status(201).json({
+            message: 'Successfully created new match',
+            match: match,
+            players: `${match.pOne} vs. ${match.pTwo}`
         });
-        newMatch.save().then(match => {
-            res.status(201).json({
-                message: 'Successfully created new match',
-                match: match,
-                players: `${match.pOne} vs. ${match.pTwo}`
-            });
-        });
+    });
     // }).catch(err => {
     //     res.status(500).json({
     //         err: err
     //     });
     // });
+});
+
+router.delete('/:matchId', (req, res, next) => {
+    Match.deleteOne({ _id: req.params.matchId }).then(result => {
+        console.log(result);
+        res.status(200).json({
+            message: 'Match is over - match successfully deleted',
+            result: result
+        });
+    }).catch(err => {
+        res.status(500).json({
+            error: err
+        });
+    });
 });
 
 module.exports = router;

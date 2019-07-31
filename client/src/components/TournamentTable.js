@@ -6,9 +6,13 @@ const MatchTableRow = ({ match, num, endMatch }) => {
         <tr>
             <th scope='row'><b>Match #{num}:</b></th>
             <td>
-                <Button onClick={endMatch} color='primary' value={match.pOne}>{match.pOne}</Button>
+                <Button onClick={endMatch} color='primary' value={match.pOne} match_id={match._id}>
+                    {match.pOne}
+                </Button>
                 &ensp;vs.&ensp;
-                <Button onClick={endMatch} color='danger' value={match.pTwo}>{match.pTwo}</Button>
+                <Button onClick={endMatch} color='danger' value={match.pTwo} match_id={match._id}>
+                    {match.pTwo}
+                </Button>
             </td>
         </tr>
     );
