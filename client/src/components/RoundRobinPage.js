@@ -18,13 +18,18 @@ class RoundRobinPage extends Component {
     };
 
     componentDidMount = () => {
-        Promise.all([axios.get('/players'), axios.get('/matches')]).then(values => {
+        Promise.all([axios.get('/players'), axios.get('/matches'), axios.get('/tournaments')]).then(values => {
+            let inProgress = false;
+            if (values[2].data.count > 0) {
+                inProgress = true;
+            };
             this.setState({
                 players: values[0].data.players,
                 points: values[0].data.players.map(player => {
                     return player.points;
                 }),
-                matches: values[1].data.matches
+                matches: values[1].data.matches,
+                inProgress: inProgress
             });
             console.log(this.state);
         }).catch(err => {
@@ -53,8 +58,8 @@ class RoundRobinPage extends Component {
     };
 
     submitNewPlayerForm = event => {
+        event.preventDefault();
         let nextRoundPlayers = this.state.nextRoundPlayers;
-
         nextRoundPlayers.push(this.state.players.filter(player => {
             return player.name === this.state.newPlayerName
         })[0]);
@@ -65,7 +70,6 @@ class RoundRobinPage extends Component {
             nextRoundPlayers: this.state.nextRoundPlayers
         });
         console.log(this.state.nextRoundPlayers);
-
         event.target.reset();
     };
 
@@ -84,6 +88,15 @@ class RoundRobinPage extends Component {
                     return value.data.match
                 }),
             });
+        }).catch(err => {
+            console.log(err);
+        });
+        axios.post('/tournaments', { inProgress: true }).then(res => {
+            console.log(res);
+            this.setState({
+                inProgress: true
+            });
+            console.log(this.state.inProgress);
         }).catch(err => {
             console.log(err);
         });
@@ -131,7 +144,8 @@ class RoundRobinPage extends Component {
 
     render = () => {
 
-        let hideNewPlForm = '', hideSubmitRound = '', hideNextPlForm = 'd-none', hideSubmitNextRound = '';
+        let hideNewPlForm = '', hideSubmitRound = '', hideNextPlForm = 'd-none', hideSubmitNextRound = '',
+            hideNextRoundPlayers = 'd-none';
         // Don't display submit round button until there are 3 or more players
         if (this.state.players.length < 3) {
             hideSubmitRound = 'd-none';
@@ -148,15 +162,16 @@ class RoundRobinPage extends Component {
             hideSubmitNextRound = 'd-none';
         };
         // If round is over - display only the appropriate buttons and forms to continue to next round
-        // if (this.state.players.length > 0 && this.state.matches.length < 1) {
-        //     hideNextPlForm = '';
-        //     hideNewPlForm = 'd-none';
-        //     hideSubmitRound = 'd-none';
-        //     if (this.state.nextRoundPlayers.length >= 2) {
-        //         hideSubmitNextRound = '';
-        //     };
-        // };
-        
+        if (this.state.players.length > 0 && this.state.matches.length < 1 && this.state.inProgress === true) {
+            hideNextPlForm = '';
+            hideNewPlForm = 'd-none';
+            hideSubmitRound = 'd-none';
+            hideNextRoundPlayers = '';
+            if (this.state.nextRoundPlayers.length >= 2) {
+                hideSubmitNextRound = '';
+            };
+        };
+
         const renderPlayers = this.state.players.map(player => {
             return <th key={player._id} className='text-center'>{player.name}</th>
         });
@@ -165,6 +180,9 @@ class RoundRobinPage extends Component {
             // console.log(this.state.points.indexOf(playerPoints));
             return <td key={this.state.points.indexOf(playerPoints) + 1} className='text-center'>{playerPoints}</td>
         });
+        const renderNextRoundPlayers = this.state.nextRoundPlayers.map(player => {
+            return <th key={player._id} className='text-center'>{player.name}</th>
+        })
 
         return (
             <Container>
@@ -224,6 +242,19 @@ class RoundRobinPage extends Component {
                             </FormGroup>
                             <Button color='primary'>Submit</Button>
                         </Form>
+                    </Col>
+                </Row>
+                <br className={hideNextRoundPlayers} />
+                <Row className={hideNextRoundPlayers}>
+                    <Col>
+                        <Table bordered>
+                            <thead>
+                                <tr>
+                                    <th>Next Round Players:</th>
+                                    {renderNextRoundPlayers}
+                                </tr>
+                            </thead>
+                        </Table>
                     </Col>
                 </Row>
                 <br className={hideSubmitNextRound} />
