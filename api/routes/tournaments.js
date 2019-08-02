@@ -35,4 +35,17 @@ router.post('/', (req, res, next) => {
     });
 });
 
+router.delete('/', (req, res, next) => {
+    Tournament.deleteMany({}).then(result => {
+        res.status(200).json({
+            message: 'Successfully deleted all tournaments in db',
+            result: result
+        });
+    }).catch(err => {
+        res.status(500).json({
+            error: err
+        });
+    });
+});
+
 module.exports = router;

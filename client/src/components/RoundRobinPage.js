@@ -180,10 +180,27 @@ class RoundRobinPage extends Component {
 
     };
 
+    resetTournament = event => {
+        event.preventDefault();
+        console.log('resetting');
+
+        Promise.all([
+            axios.delete('/players'), axios.delete('/tournaments')
+        ]).then(() => {
+            this.setState({
+                players: [],
+                points: [],
+                inProgress: false
+            });
+        });
+
+
+    };
+
     render = () => {
 
         let hideNewPlForm = '', hideSubmitRound = '', hideNextPlForm = 'd-none', hideSubmitNextRound = '',
-            hideNextRoundPlayers = 'd-none';
+            hideNextRoundPlayers = 'd-none', hideFinal = 'd-none', winner = '';
         // Don't display submit round button until there are 3 or more players
         if (this.state.players.length < 3) {
             hideSubmitRound = 'd-none';
@@ -214,6 +231,12 @@ class RoundRobinPage extends Component {
             hideNextPlForm = 'd-none';
             hideSubmitNextRound = 'd-none';
             hideNextRoundPlayers = 'd-none';
+            for (let i = 0; i < this.state.points.length; i++) {
+                if (this.state.points[i] > 0) {
+                    hideFinal = '';
+                    winner = this.state.players[i].name;
+                };
+            };
         };
 
         const renderPlayers = this.state.players.map(player => {
@@ -278,6 +301,17 @@ class RoundRobinPage extends Component {
                             endMatch={this.endMatch}
                             matches={this.state.matches}
                         />
+                    </Col>
+                </Row>
+                <br className={hideFinal} />
+                <Row className={`text-center ${hideFinal}`}>
+                    <Col>
+                        Winner: {winner}
+                        <br />
+                        <br />
+                        <Button color='danger' onClick={this.resetTournament}>
+                            Reset Tournament
+                        </Button>
                     </Col>
                 </Row>
                 <Row className={hideNextPlForm}>
