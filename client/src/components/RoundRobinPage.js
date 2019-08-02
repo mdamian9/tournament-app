@@ -104,15 +104,52 @@ class RoundRobinPage extends Component {
 
     submitNextRound = event => {
         event.preventDefault();
-        console.log('On to next round');
-        console.log(this.state.nextRoundPlayers);
+        const players = this.state.nextRoundPlayers;
 
-        // axios delete /players, then get /players and set to state, re-render component
+        // First delete old round players to insert next round players to db
+        axios.delete('/players').then(res => {
+            console.log(res);
+        }).catch(err => {
+            console.log(err);
+        });
+
+        // Hold different promises for Promise.all
+        let newPlayerPromises = [], newMatchPromises = [];
+        players.forEach(player => {
+            newPlayerPromises.push(axios.post('/players', player));
+        });
+        for (let i = 0; i < players.length - 1; i++) {
+            for (let j = i + 1; j < players.length; j++) {
+                newMatchPromises.push(axios.post('/matches', { pOne: players[i].name, pTwo: players[j].name }));
+            };
+        };
+        // Create next round players in db
+        Promise.all(newPlayerPromises).then(values => {
+            console.log(values);
+        }).catch(err => {
+            console.log(err);
+        });
+        // Create new matches for next round and set to state
+        Promise.all(newMatchPromises).then(values => {
+            console.log(values);
+        }).catch(err => {
+            console.log(err);
+        });
+        // Get new set of players and matches from db and set to state
+        Promise.all([axios.get('/players'), axios.get('/matches')]).then(values => {
+            this.setState({
+                players: values[0].data.players,
+                points: values[0].data.players.map(player => {
+                    return player.points
+                }),
+                matches: values[1].data.matches
+            });
+        });
+        console.log(this.state);
     };
 
-    endMatch = (event) => {
-        // event.preventDefault();
-        console.log(`Winner: ${event.target.value}`);
+    endMatch = event => {
+        event.preventDefault();
         // Winner of match
         const winner = event.target.value;
         // MongoDB id of match
@@ -123,13 +160,14 @@ class RoundRobinPage extends Component {
         })[0].points;
 
         Promise.all([
-            axios.patch(`/players/${winner}`, { points: winnerPoints + 1 }),
+            axios.patch(`/players/${winner}`, { points: (winnerPoints + 1) }),
             axios.delete(`/matches/${matchId}`),
             axios.get('/players'),
             axios.get('/matches')
         ]).then(values => {
             console.log(values);
             this.setState({
+                players: values[2].data.players,
                 points: values[2].data.players.map(player => {
                     return player.points;
                 }),
@@ -171,15 +209,25 @@ class RoundRobinPage extends Component {
                 hideSubmitNextRound = '';
             };
         };
+        // If we are in final round (1 v 1) don't show certain elements
+        if (this.state.players.length === 2) {
+            hideNextPlForm = 'd-none';
+            hideSubmitNextRound = 'd-none';
+            hideNextRoundPlayers = 'd-none';
+        };
 
         const renderPlayers = this.state.players.map(player => {
             return <th key={player._id} className='text-center'>{player.name}</th>
         });
-        const renderPoints = this.state.points.map(playerPoints => {
-            // encountering with same key problem
-            // console.log(this.state.points.indexOf(playerPoints));
-            return <td key={this.state.points.indexOf(playerPoints) + 1} className='text-center'>{playerPoints}</td>
-        });
+
+        const renderPoints = () => {
+            let points = [];
+            for (let i = 0; i < this.state.points.length; i++) {
+                points.push(<td key={i} className='text-center'>{this.state.points[i]}</td>)
+            };
+            return points;
+        };
+
         const renderNextRoundPlayers = this.state.nextRoundPlayers.map(player => {
             return <th key={player._id} className='text-center'>{player.name}</th>
         })
@@ -217,7 +265,7 @@ class RoundRobinPage extends Component {
                             <tbody>
                                 <tr>
                                     <th scope="row">Points:</th>
-                                    {renderPoints}
+                                    {renderPoints()}
                                 </tr>
                             </tbody>
                         </Table>
@@ -287,5 +335,3 @@ class RoundRobinPage extends Component {
 };
 
 export default RoundRobinPage;
-
-// Figure out key thing with renderPoints
