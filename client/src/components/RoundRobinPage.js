@@ -47,12 +47,16 @@ class RoundRobinPage extends Component {
     };
 
     submitPlayerForm = event => {
-        axios.post('/players', {
-            name: this.state.newPlayerName
-        }).then(res => {
-            console.log(res);
-        }).catch(err => {
-            console.log(err);
+        event.preventDefault();
+        Promise.all(
+            [axios.post('/players', { name: this.state.newPlayerName }), axios.get('/players')]
+        ).then(values => {
+            this.setState({
+                players: values[1].data.players,
+                points: values[1].data.players.map(player => {
+                    return player.points;
+                })
+            });
         });
         event.target.reset();
     };
@@ -96,7 +100,6 @@ class RoundRobinPage extends Component {
             this.setState({
                 inProgress: true
             });
-            console.log(this.state.inProgress);
         }).catch(err => {
             console.log(err);
         });
@@ -105,14 +108,12 @@ class RoundRobinPage extends Component {
     submitNextRound = event => {
         event.preventDefault();
         const players = this.state.nextRoundPlayers;
-
         // First delete old round players to insert next round players to db
         axios.delete('/players').then(res => {
             console.log(res);
         }).catch(err => {
             console.log(err);
         });
-
         // Hold different promises for Promise.all
         let newPlayerPromises = [], newMatchPromises = [];
         players.forEach(player => {
@@ -142,10 +143,10 @@ class RoundRobinPage extends Component {
                 points: values[0].data.players.map(player => {
                     return player.points
                 }),
-                matches: values[1].data.matches
+                matches: values[1].data.matches,
+                nextRoundPlayers: []
             });
         });
-        console.log(this.state);
     };
 
     endMatch = event => {
@@ -177,13 +178,10 @@ class RoundRobinPage extends Component {
         }).catch(err => {
             console.log(err);
         });
-
     };
 
     resetTournament = event => {
         event.preventDefault();
-        console.log('resetting');
-
         Promise.all([
             axios.delete('/players'), axios.delete('/tournaments')
         ]).then(() => {
@@ -193,8 +191,6 @@ class RoundRobinPage extends Component {
                 inProgress: false
             });
         });
-
-
     };
 
     render = () => {
@@ -253,7 +249,7 @@ class RoundRobinPage extends Component {
 
         const renderNextRoundPlayers = this.state.nextRoundPlayers.map(player => {
             return <th key={player._id} className='text-center'>{player.name}</th>
-        })
+        });
 
         return (
             <Container>
