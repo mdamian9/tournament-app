@@ -23,19 +23,20 @@ class RoundRobinPage extends Component {
             if (values[2].data.count > 0) {
                 inProgress = true;
             };
-            this.setState({
-                players: values[0].data.players,
-                points: values[0].data.players.map(player => {
-                    return player.points;
-                }),
-                matches: values[1].data.matches,
-                inProgress: inProgress
+            this.setState(() => {
+                return {
+                    players: values[0].data.players,
+                    points: values[0].data.players.map(player => {
+                        return player.points;
+                    }),
+                    matches: values[1].data.matches,
+                    inProgress: inProgress
+                };
             });
             console.log(this.state);
         }).catch(err => {
             console.log(err);
         });
-
     };
 
     handleChange = event => {
@@ -51,11 +52,13 @@ class RoundRobinPage extends Component {
         Promise.all(
             [axios.post('/players', { name: this.state.newPlayerName }), axios.get('/players')]
         ).then(values => {
-            this.setState({
-                players: values[1].data.players,
-                points: values[1].data.players.map(player => {
-                    return player.points;
-                })
+            this.setState(() => {
+                return {
+                    players: values[1].data.players,
+                    points: values[1].data.players.map(player => {
+                        return player.points;
+                    })
+                };
             });
         });
         event.target.reset();
@@ -70,8 +73,8 @@ class RoundRobinPage extends Component {
         nextRoundPlayers.forEach(player => {
             player.points = 0;
         });
-        this.setState({
-            nextRoundPlayers: this.state.nextRoundPlayers
+        this.setState(() => {
+            return { nextRoundPlayers: this.state.nextRoundPlayers }
         });
         console.log(this.state.nextRoundPlayers);
         event.target.reset();
@@ -87,18 +90,23 @@ class RoundRobinPage extends Component {
             };
         };
         Promise.all(promises).then(values => {
-            this.setState({
-                matches: values.map(value => {
-                    return value.data.match
-                }),
+            this.setState(() => {
+                return {
+                    newPlayerName: '',        
+                    matches: values.map(value => {
+                        return value.data.match
+                    })
+                };
             });
         }).catch(err => {
             console.log(err);
         });
         axios.post('/tournaments', { inProgress: true }).then(res => {
             console.log(res);
-            this.setState({
-                inProgress: true
+            this.setState(() => {
+                return {
+                    inProgress: true
+                };
             });
         }).catch(err => {
             console.log(err);
@@ -138,13 +146,16 @@ class RoundRobinPage extends Component {
         });
         // Get new set of players and matches from db and set to state
         Promise.all([axios.get('/players'), axios.get('/matches')]).then(values => {
-            this.setState({
-                players: values[0].data.players,
-                points: values[0].data.players.map(player => {
-                    return player.points
-                }),
-                matches: values[1].data.matches,
-                nextRoundPlayers: []
+            this.setState(() => {
+                return {
+                    newPlayerName: '',        
+                    players: values[0].data.players,
+                    points: values[0].data.players.map(player => {
+                        return player.points
+                    }),
+                    matches: values[1].data.matches,
+                    nextRoundPlayers: []
+                };
             });
         });
     };
@@ -167,12 +178,14 @@ class RoundRobinPage extends Component {
             axios.get('/matches')
         ]).then(values => {
             console.log(values);
-            this.setState({
-                players: values[2].data.players,
-                points: values[2].data.players.map(player => {
-                    return player.points;
-                }),
-                matches: values[3].data.matches
+            this.setState(() => {
+                return {
+                    players: values[2].data.players,
+                    points: values[2].data.players.map(player => {
+                        return player.points;
+                    }),
+                    matches: values[3].data.matches
+                };
             });
             console.log(this.state);
         }).catch(err => {
@@ -185,12 +198,19 @@ class RoundRobinPage extends Component {
         Promise.all([
             axios.delete('/players'), axios.delete('/tournaments')
         ]).then(() => {
-            this.setState({
-                players: [],
-                points: [],
-                inProgress: false
+            this.setState(() => {
+                return {
+                    newPlayerName: '',
+                    players: [],
+                    points: [],
+                    matches: [],
+                    nextRoundPlayers: [],
+                    inProgress: false
+                };
             });
         });
+        console.log('Reset tournament');
+        console.log(this.state);
     };
 
     render = () => {
@@ -253,9 +273,12 @@ class RoundRobinPage extends Component {
 
         return (
             <Container>
-                <Row>
+                <br />
+                <Row className="text-center">
                     <Col>
-                        RoundRobinPage
+                        <h1>
+                            Round Tournament
+                        </h1>
                     </Col>
                 </Row>
                 <br />
@@ -263,7 +286,7 @@ class RoundRobinPage extends Component {
                     <Col>
                         <Form inline onSubmit={this.submitPlayerForm}>
                             <FormGroup className='mb-2 mr-sm-2 mb-sm-0'>
-                                <Label for='new-player-name' className='mr-sm-2'>Player name:</Label>
+                                <Label for='new-player-name' className='mr-sm-2'>New player name:</Label>
                                 <Input type='text' name="newPlayerName" id='new-player=name'
                                     placeholder='Enter player name' onChange={this.handleChange} />
                             </FormGroup>
@@ -350,7 +373,7 @@ class RoundRobinPage extends Component {
                     <Col>
                         <Form inline onSubmit={this.submitRoundForm}>
                             <FormGroup className='mb-2 mr-sm-2 mb-sm-0'>
-                                <Label for='new-player-name' className='mr-sm-2'>Ready to start round?</Label>
+                                <Label for='new-player-name' className='mr-sm-2'>Ready to start tournament?</Label>
                             </FormGroup>
                             <Button color='danger'>Start</Button>
                         </Form>
